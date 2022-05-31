@@ -544,7 +544,7 @@ $ sudo mn --custom customTopo.py --topo mytopo --controller=remote,ip=10.0.2.6,p
 
 **19-  Vérifiez via votre interface WEB que le réseau a bien été créer (fournir screenshot)** 
 
-![Q19.1Topology.png](/Users/camilo/Documents/2021-2022-IMT_FC-TI/UV5-SER/TD_SDN_Part1/Q19.1Topology.png)
+![Q19.Topology.png](/Users/camilo/Documents/2021-2022-IMT_FC-TI/UV5-SER/TD_SDN_Part1/Q19.Topology.png)
 
 ---
 
@@ -589,27 +589,35 @@ rtt min/avg/max/mdev=0.067/1.813/8.403/3.297ms
 
 ```python
 import requests
-r = requests.post('http://10.0.2.6:8080/wm/acl/rules/json', data=json.dumps(){
+r = requests.post('http://127.0.0.1:8080/wm/acl/rules/json', json={
   "nw-proto": "ICMP",
-  "src-ip": "10.0.0.2",
-  "dst-ip": "10.0.0.1",
+  "src-ip": "10.0.0.2/32",
+  "dst-ip": "10.0.0.1/32",
   "action": "DENY"
-}))
-print(r.status_code)
+})
+print(f"Status Code: {r.status_code}, Response: {r.json()}")
+```
 
+On applique le script : 
+
+```bash
+floodlight-vm@floodlight-vm:~/floodlight$ python3 /media/sf_tp/firstrule.py 
+Status Code: 200, Response: {'status': 'Success! New rule added.'}
 ```
 
 On voit que la règle a été ajoutée dans le log de la VM floodlight
 
 ```bash
-2022-05-27 02:27:19.773 INFO [n.f.a.ACL] ACL rule(id:1) is added.
+2022-05-31 10:06:27.812 INFO [n.f.a.ACL] ACL rule(id:1) is added.
 ```
 
 ---
 
 **22- Une fois votre règle chargée dans votre réseau, vérifiez à l’aide de l’interface floodlight que la règle est bien appliquée sur les switchs.**
 
-[IMPRESSION ECRAN A AJOUTER]
+La règle est bien visible dans l'onglet  ACLs :
+
+![Q22.ACL.png](/Users/camilo/Documents/2021-2022-IMT_FC-TI/UV5-SER/TD_SDN_Part1/Q22.ACL.png)
 
 ---
 
@@ -629,3 +637,109 @@ h5 -> h1 h2 h3 h4
 On constate que le ping est KO de h2 vers h1 mais également de h1 vers h2. 
 
 Comportement normal, le message icmp echo  de h1 est relayé par s1, en revanche le icmp reply de h2 est dropé.
+
+## Sflow_RT
+
+**24-  Installez sflow_RT.**
+
+Je procède à l'installation de sflow-RT sur la vm Floodlight : 
+
+```bash
+$ curl https://inmon.com/products/sFlow-RT/sflow-rt.tar.gz --output flow-rt.tar.gz                 2 х │ 10:47:44  
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 20.6M  100 20.6M    0     0   723k      0  0:00:29  0:00:29 --:--:--  746k
+$ tar -xvzf sflow-rt.tar.gz
+$ sudo ./sflow-rt/start.sh 
+2022-05-31T10:58:21+02:00 INFO: Starting sFlow-RT 3.0-1665
+2022-05-31T10:58:22+02:00 INFO: Version check, running latest
+2022-05-31T10:58:22+02:00 INFO: Listening, sFlow port 6343
+2022-05-31T10:58:23+02:00 INFO: Listening, HTTP port 8008
+2022-05-31T10:58:23+02:00 INFO: app/browse-flows/scripts/top.js started
+$ sudo ./sflow-rt/get-app.sh sflow-rt browse-metrics
+
+===================================
+Restart sflow-rt to run application
+===================================
+$ sudo ./sflow-rt/get-app.sh sflow-rt browse-flows
+
+===================================
+Restart sflow-rt to run application
+===================================
+
+$ sudo systemctl restart sflow-rt
+```
+
+**25- Maintenant que c’est installé, il est temps que vous vous posiez la question : A quoi sert sflow_RT ?**
+
+D'après Wikipedia, le sFlow est l'abbréviation de "Sampled Flow", un standard de l'industrie pour l'export de paquets en couche 2 du modèle OSI.
+
+Le site de InMon nous explique que sFlow-RT est un outil d'analyse en Temps Réel (le RT de sFlow-RT)  qui reçoit les stream télémétriques des agents sFlow embarqués dans les devices du réseau, les hosts ou les applications dans le but de les traiter ensuite dans le cadre de data visualization par exemple.
+
+**26-  Téléchargez le plugin « flow trend » qui accompagnera sflow_rt pour la suite.**
+
+```bash
+floodlight-vm@floodlight-vm:~$ sudo sflow-rt/get-app.sh sflow-rt flow-trend
+
+===================================
+Restart sflow-rt to run application
+===================================
+$ sudo systemctl restart sflow-rt
+```
+
+**27-  Connectez sflow_RT à votre architecture réseau de manière à ce que sflow_RT mesure le flux sur le switch S1.**
+
+* Sur la VM mininet, je synchronise le projet sFlow-RT pour pouvoir utiliser le script *sflow.py*
+  
+  ```bash
+  $ wget https://inmon.com/products/sFlow-RT/sflow-rt.tar.gz
+  $ tar -xvzf sflow-rt.tar.gz
+  ```
+
+* Ensuite, toujours sur la VM mininet, je modifie le fichier *sflow.py* en ligne 96 pour modifier l'adresse du collecteur : 
+  
+  ```python
+      collector = environ.get('COLLECTOR','10.0.2.7') #IP de ma VM Floodlight
+  ```
+
+* Ensuite, je redémarre mon environnement mininet comme suit en embarquant le script *sflow.py* : 
+  
+  ```bash
+  $ sudo mn --custom ./sflow-rt/extras/sflow.py,customTopo.py --topo mytopo --controller=remote,ip=10.0.2.7,port=6653 --switch ovsk,protocols=OpenFlow13
+  ```
+  
+  ![Q22.DemarrageMininet.png](Q27.1.DemarrageMininet.png)
+
+* Une fois réalisé, je vérifie que ma topologie et notamment mes switchs ont bien été insérée depuis la vm floodlight en vérifiant avec l'API dans mon navigateur : 
+  
+  ```http
+  localhost:8008/topology/json
+  ```
+  
+  ![Q22.2.API.png](./Q27.1.API.png)
+
+* ensuite pour filtrer mon switch s1  dans sFlow-RT, je vérifie les adresses mac de chacune de ses interfaces dans la vm mininet
+  
+  ![Q27.2.adressesMacS1.png](/Users/camilo/Documents/2021-2022-IMT_FC-TI/UV5-SER/TD_SDN_Part1/Q27.2.adressesMacS1.png)
+
+**28-  Faites des pings (ou pingall) et vérifiez dans l’interface WEB de sflow_RT que tout se passe bien.**
+
+![Q.28.DataViz.png](/Users/camilo/Documents/2021-2022-IMT_FC-TI/UV5-SER/TD_SDN_Part1/Q.28.DataViz.png)
+
+## DDoS et mitigation
+
+Plutôt que d'utiliser XTERM, je choisi d'installer hping3 sur la VM mininet  pour executer le flood
+
+```bash
+$ sudo apt install hping3 
+```
+
+Une fois installé, je peux relancer ma topologie et utiliser hping3 comme suit : 
+
+```bash
+mininet> h1 hping3 h2 -c 10000 -S --flood
+```
+
+On voit alors le flood commencer : 
+
+![ddos1.png](./ddos1.png)
