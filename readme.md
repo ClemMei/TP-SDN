@@ -617,7 +617,7 @@ On voit que la règle a été ajoutée dans le log de la VM floodlight
 
 La règle est bien visible dans l'onglet  ACLs :
 
-![Q22.ACL.png](/Users/camilo/Documents/2021-2022-IMT_FC-TI/UV5-SER/TD_SDN_Part1/Q22.ACL.png)
+![Q22.ACL.png](./Q22.ACL.png)
 
 ---
 
