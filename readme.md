@@ -489,7 +489,7 @@ A la suite de problèmes avec la *Floodlight Linux VM* à disposition sur le sit
 
 Vous pouvez voir votre topologie en cliquant sur l’onglet « topology » sur la gauche. Explorez l’interface WEB, découvrez les différentes possibilités qu’offre l’interface.
 
-![Q17.topology.png](/Users/camilo/Documents/2021-2022-IMT_FC-TI/UV5-SER/TD_SDN_Part1/Q17.topology.png)
+![Q17.topology.png](./Q17.topology.png)
 
 ## Programmation des réseaux.
 
@@ -499,7 +499,7 @@ Dans un second temps, nous allons programmer le déploiement d’une architectu
 
 N’hésitez pas à vous inspirer des exemples officiels : http://mininet.org/walkthrough/#custom-topologies
 
-![Q18.Topology.png](/Users/camilo/Documents/2021-2022-IMT_FC-TI/UV5-SER/TD_SDN_Part1/Q18.Topology.png)
+![Q18.Topology.png](./Q18.Topology.png)
 
 je construit le fichier *customTopo.py* :
 
