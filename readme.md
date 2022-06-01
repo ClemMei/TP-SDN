@@ -447,7 +447,7 @@ Nous allons utiliser le contrôleur Floodlight en remplacement du contrôleur 
 
 **15- Installez floodlight sur votre hyperviseur (donc pas sur la machine mininet).**
 
-Je crée ma VM à partir de la *Floodlight Linux VM* à disposition sur le site d'[Atlassian](https://floodlight.atlassian.net/wiki/spaces/floodlightcontroller/pages/1343544/Installation+Guide)
+A la suite de problèmes avec la *Floodlight Linux VM* à disposition sur le site d'[Atlassian](https://floodlight.atlassian.net/wiki/spaces/floodlightcontroller/pages/1343544/Installation+Guide), j'ai pris le parti de créer ma propre VM Floodlight.
 
 ---
 
@@ -674,7 +674,7 @@ $ sudo systemctl restart sflow-rt
 
 D'après Wikipedia, le sFlow est l'abbréviation de "Sampled Flow", un standard de l'industrie pour l'export de paquets en couche 2 du modèle OSI.
 
-Le site de InMon nous explique que sFlow-RT est un outil d'analyse en Temps Réel (le RT de sFlow-RT)  qui reçoit les stream télémétriques des agents sFlow embarqués dans les devices du réseau, les hosts ou les applications dans le but de les traiter ensuite dans le cadre de data visualization par exemple.
+Le site de InMon nous explique que sFlow-RT est un outil d'analyse en Temps Réel (le RT de sFlow-RT)  qui reçoit les stream télémétriques des agents sFlow embarqués dans les devices du réseau, les hosts ou les applications dans le but de les traiter ensuite dans le cadre de data visualization en temps réel par exemple.
 
 **26-  Téléchargez le plugin « flow trend » qui accompagnera sflow_rt pour la suite.**
 
@@ -716,7 +716,7 @@ $ sudo systemctl restart sflow-rt
   localhost:8008/topology/json
   ```
   
-  ![ddos2.png](./ddos2.png)
+  ![ddos2.png](Q27.2.Topology.png)
   
   Je relève les ifindex(20,23,21) pour ensuite filtrer mon switch dans sFlow-RT
 
