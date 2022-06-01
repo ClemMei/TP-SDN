@@ -544,7 +544,7 @@ $ sudo mn --custom customTopo.py --topo mytopo --controller=remote,ip=10.0.2.6,p
 
 **19-  Vérifiez via votre interface WEB que le réseau a bien été créer (fournir screenshot)** 
 
-![Q19.Topology.png](/Users/camilo/Documents/2021-2022-IMT_FC-TI/UV5-SER/TD_SDN_Part1/Q19.Topology.png)
+![Q19.Topology.png](./Q19.Topology.png)
 
 ---
 
