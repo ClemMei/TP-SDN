@@ -716,30 +716,49 @@ $ sudo systemctl restart sflow-rt
   localhost:8008/topology/json
   ```
   
-  ![Q22.2.API.png](./Q27.1.API.png)
-
-* ensuite pour filtrer mon switch s1  dans sFlow-RT, je vérifie les adresses mac de chacune de ses interfaces dans la vm mininet
+  ![ddos2.png](./ddos2.png)
   
-  ![Q27.2.adressesMacS1.png](/Users/camilo/Documents/2021-2022-IMT_FC-TI/UV5-SER/TD_SDN_Part1/Q27.2.adressesMacS1.png)
+  Je relève les ifindex(20,23,21) pour ensuite filtrer mon switch dans sFlow-RT
 
 **28-  Faites des pings (ou pingall) et vérifiez dans l’interface WEB de sflow_RT que tout se passe bien.**
 
-![Q.28.DataViz.png](/Users/camilo/Documents/2021-2022-IMT_FC-TI/UV5-SER/TD_SDN_Part1/Q.28.DataViz.png)
+Une fois filtré, on voit bien les pings qui passent par les interfaces du switch : 
+
+![Q.28.DataViz.png](./Q27.3.Pings.png)
 
 ## DDoS et mitigation
 
-Plutôt que d'utiliser XTERM, je choisi d'installer hping3 sur la VM mininet  pour executer le flood
+Plutôt que d'utiliser XTERM, je flood directement depuis miniet avec la commande
 
 ```bash
-$ sudo apt install hping3 
+mininet> h1 ping h2 -f
 ```
 
-Une fois installé, je peux relancer ma topologie et utiliser hping3 comme suit : 
+On voit alors l'attaque commencer : 
+
+![Q29.1.ddos.png](./Q29.1.ddos.png)
+
+je modifie la variable *targetedSwitch* et je rajoute les lignes suivantes au début du fichier *antiddos.py*:
+
+```python
+event_url = requests.get(sFlow_RT + '/events/json')
+events = event_url.json()
+```
+
+Une fois réalisé, dans ma VM floodlight, je démarre le script *antiddos.py* : 
 
 ```bash
-mininet> h1 hping3 h2 -c 10000 -S --flood
+$ python3 antiddos.py
 ```
 
-On voit alors le flood commencer : 
+Celui-ci fonctionne immédiatement en repérant le thresholdID *icmp_flood* en requêtant l'API : 
 
-![ddos1.png](./ddos1.png)
+![Q29.2.ddos.png](./Q29.2.ddos.png)
+
+et génère dans le *Static FLow Pusher* du s1 les règles correspondantes : 
+
+![Q29.4.ddos.png](./Q29.3.ddos.png)
+
+On voit dans l'interface de sFlow-RT l'arrêt du flooding : 
+
+![Q29.4.ddos.png](./Q29.4.ddos.png)
