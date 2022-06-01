@@ -750,7 +750,7 @@ On voit alors l'attaque commencer :
 
 ![Q29.1.ddos.png](./Q29.1.ddos.png)
 
-je modifie la variable *targetedSwitch* et je rajoute les lignes suivantes au début du fichier *antiddos.py*:
+je modifie la variable *targetedSwitch* et *icmp_flood_threshold_value* puis je rajoute les lignes suivantes au début du fichier *antiddos.py*:
 
 ```python
 event_url = requests.get(sFlow_RT + '/events/json')
@@ -822,7 +822,7 @@ while True:
         print(r.json()['status'])
         r = requests.get(event_url + '&eventID=' + str(eventID))
         events = r.json() 
-    
+
     if events.__len__() > 0:
         eventID = events[0]["eventID"]
         events.reverse()
@@ -857,6 +857,4 @@ while True:
                              else:
                                  continue
     time.sleep(3)
-
-
 ```
