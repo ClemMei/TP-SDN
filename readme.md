@@ -728,7 +728,7 @@ Une fois filtré, on voit bien les pings qui passent par les interfaces du switc
 
 ## DDoS et mitigation
 
-Plutôt que d'utiliser XTERM, je flood directement depuis miniet avec la commande
+Plutôt que d'utiliser XTERM, je flood directement depuis mininet avec la commande
 
 ```bash
 mininet> h1 ping h2 -f
